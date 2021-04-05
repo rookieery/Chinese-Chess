@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess</title>
+    <link rel="stylesheet" href="./css/index.css">
+    <script type="module" src="./js/main.js"></script>
+</head>
+
+<body>
+    <div class="home">
+        <audio src="sounds/CLICK.WAV" hidden="hidden" id="chessUp"></audio>
+        <audio src="sounds/MOVE2.WAV" hidden="hidden" id="chessDown"></audio>
+        <audio src="sounds/PROMOTE2.WAV" hidden="hidden" id="warnGeneral"></audio>
+        <h1>Chinese Chess</h1>
+        <div class="board">
+            <div class="board-inner">
+            </div>
+            <div class="operations">
+                <div class="start flex-item button" id="start">START</div>
+                <div class="surrender flex-item button" id="surrender">SURRENDER</div>
+                <div class="backward flex-item button" id="backward">BACKWARD</div>
+                <div class="forward flex-item button">FORWARD</div>
+            </div>
+        </div>
+        <!-- <script src="dev/main_bundle.js"></script> -->
+</body>
+
+</html>

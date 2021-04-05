@@ -1,0 +1,140 @@
+*{
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #09BB07;
+    font-size: 2.2rem;
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+.board-inner {
+    width: 34rem;
+    height: 38rem;
+    margin: 0 auto;
+    position: relative;
+    background-image: url("../images/board.jpg");
+    background-size: 100%;
+}
+
+.border{
+    /* line-height: 1.8rem !important;
+    border: 0.2rem groove rgba(32, 33, 36, 0.4); */
+   box-shadow:0 0 0.2rem 0.2rem rgba(9, 187, 7, 0.6);
+}
+
+.chess{
+    position: absolute;
+    cursor: move;
+    width: 2.2rem;
+    height: 2.2rem;
+    line-height: 2.2rem;
+    text-align: center;
+    border-radius: 50%;
+    background-color: wheat;
+    font-family: 隶书;
+    font-weight: 600;
+    font-size: x-large;
+    user-select: none;
+    transition: margin 0.5s ease;
+}
+
+.point{
+    position: absolute;
+    pointer-events: none;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    opacity: 0.6;
+    background-color: #1198bc;
+    z-index: 10;
+}
+
+.red{
+    color: red;
+}
+
+.black{
+    color: #000;
+}
+
+.operations{
+    margin: 2rem auto;
+    padding: 0 4rem;
+    max-width: 50rem;
+    display: flex;
+    justify-content: space-around;
+}
+
+.flex-item{
+    flex: 1;
+    height: 3rem;
+    text-align: center;
+    line-height: 3rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.button {
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid #dcdfe6;
+    color: #606266;
+    border-radius: 4px;
+}
+
+.button:hover{
+    background: #66b1ff;
+    border-color: #66b1ff;
+    color: #fff;
+}
+
+.start{
+    color: #fff;
+    background-color: #409eff;
+    border-color: #409eff;
+}
+
+.start:hover {
+    background: #66b1ff;
+    border-color: #66b1ff;
+    color: #fff;
+}
+
+.surrender{
+    color: #fff;
+    background-color: #f56c6c;
+    border-color: #f56c6c;
+}
+
+.surrender:hover {
+    background: #f78989;
+    border-color: #f78989;
+    color: #fff;
+}
+
+.backward{
+    color: #fff;
+    background-color: #e6a23c;
+    border-color: #e6a23c;
+}
+
+.backward:hover{
+    background: #ebb563;
+    border-color: #ebb563;
+    color: #fff;
+}
+
+.forward{
+    color: #fff;
+    background-color: #b3e19d;
+    border-color: #b3e19d;
+}
+
+.forward:hover{
+    cursor: not-allowed;
+    color: #fff;
+    background-color: #b3e19d;
+    border-color: #b3e19d;
+}
