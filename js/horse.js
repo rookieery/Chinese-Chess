@@ -23,6 +23,24 @@ export default class Horse {
         }
     }
 
+    getDisturb(position, board) {
+        const positions = [];
+        const rowIndex = position[0];
+        const colIndex = position[1];
+        const stumblePositions = [
+            [rowIndex - 1, colIndex], [rowIndex - 1, colIndex], [rowIndex, colIndex - 1], [rowIndex, colIndex + 1],
+            [rowIndex + 1, colIndex], [rowIndex + 1, colIndex], [rowIndex, colIndex - 1], [rowIndex, colIndex + 1],
+        ];
+        for (let i = 0; i < stumblePositions.length; i++) {
+            const stumblePosition = stumblePositions[i];
+            if (stumblePosition[0] < 0 || stumblePosition[0] >= board.length || stumblePosition[1] < 0 || stumblePosition[1] >= board[0].length) {
+                continue;
+            }
+            positions.push([stumblePosition[0], stumblePosition[1]]);
+        }
+        return positions;
+    }
+
     rule(position, board) {
         const positions = [];
         const rowIndex = position[0];

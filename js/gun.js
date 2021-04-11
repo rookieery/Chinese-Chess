@@ -116,6 +116,85 @@ export default class Gun {
         return positions;
     }
 
+    getDisturb(position, targetPosition, board) {
+        const positions = [];
+        let rowIndex = position[0];
+        let colIndex = position[1];
+        if (position[1] === targetPosition[1]) {
+            if (position[0] > targetPosition[0]) {
+                rowIndex--;
+                while (board[rowIndex][colIndex] === role.empty) {
+                    rowIndex--;
+                }
+            } else {
+                rowIndex++;
+                while (board[rowIndex][colIndex] === role.empty) {
+                    rowIndex++;
+                }
+            }
+        } else {
+            if (position[1] > targetPosition[1]) {
+                colIndex--;
+                while (board[rowIndex][colIndex] === role.empty) {
+                    colIndex--;
+                }
+            } else {
+                colIndex++;
+                while (board[rowIndex][colIndex] === role.empty) {
+                    colIndex++;
+                }
+            }
+        }
+        if (rowIndex === position[0]) {
+            if (colIndex < position[1]) {
+                for (let j = colIndex + 1; j < position[1]; j++) {
+                    positions.push([rowIndex, j]);
+                }
+            } else {
+                for (let j = position[1] + 1; j < colIndex; j++) {
+                    positions.push([rowIndex, j]);
+                }
+            }
+        } else {
+            if (rowIndex < position[0]) {
+                for (let i = rowIndex + 1; i < position[0]; i++) {
+                    positions.push([i, colIndex]);
+                }
+            } else {
+                for (let i = position[0] + 1; i < rowIndex; i++) {
+                    positions.push([i, colIndex]);
+                }
+            }
+        }
+        if (board[rowIndex][colIndex].type === board[position[0]][position[1]].type &&
+            board[rowIndex][colIndex].text === board[position[0]][position[1]].text) {
+
+        } else {
+            if (rowIndex === targetPosition[0]) {
+                if (colIndex < targetPosition[1]) {
+                    for (let j = colIndex + 1; j < targetPosition[1]; j++) {
+                        positions.push([rowIndex, j]);
+                    }
+                } else {
+                    for (let j = targetPosition[1] + 1; j < colIndex; j++) {
+                        positions.push([rowIndex, j]);
+                    }
+                }
+            } else {
+                if (rowIndex < targetPosition[0]) {
+                    for (let i = rowIndex + 1; i < targetPosition[0]; i++) {
+                        positions.push([i, colIndex]);
+                    }
+                } else {
+                    for (let i = targetPosition[0] + 1; i < rowIndex; i++) {
+                        positions.push([i, colIndex]);
+                    }
+                }
+            }
+        }
+        return positions;
+    }
+
     rule(position, board) {
         const positions = [];
         const rowIndex = position[0];

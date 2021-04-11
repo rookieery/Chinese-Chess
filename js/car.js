@@ -47,6 +47,7 @@ export default class Car {
         }
     }
 
+    //这里可能有点问题
     killRule(position, board) {
         const positions = [];
         const rowIndex = position[0];
@@ -56,6 +57,33 @@ export default class Car {
         }
         for (let j = 0; j < board[0].length; j++) {
             positions.push([rowIndex, j]);
+        }
+        return positions;
+    }
+
+
+    getDisturb(position, targetPosition) {
+        const positions = [];
+        if (position[1] === targetPosition[1]) {
+            if (position[0] > targetPosition[0]) {
+                for (let i = targetPosition[0] + 1; i < position[0]; i++) {
+                    positions.push([i, position[1]]);
+                }
+            } else {
+                for (let i = position[0] + 1; i < targetPosition[0]; i++) {
+                    positions.push([i, position[1]]);
+                }
+            }
+        } else {
+            if (position[1] > targetPosition[1]) {
+                for (let j = targetPosition[1] + 1; j < position[1]; j++) {
+                    positions.push([position[0], j]);
+                }
+            } else {
+                for (let j = position[1] + 1; j < targetPosition[1]; j++) {
+                    positions.push([position[0], j]);
+                }
+            }
         }
         return positions;
     }

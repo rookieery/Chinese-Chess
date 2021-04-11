@@ -151,6 +151,7 @@ export default class Board {
     }
 
     // 如果将pop()改进为index可以实现forWard
+    // 悔棋还有bug
     backwardHandler = () => {
         if (!this.isBackward) {
             alert('提子无悔！');
@@ -410,45 +411,129 @@ export default class Board {
 
     // 有点复杂TODO
     absoluteKill(position, allPositions) {
-        // 首先判断将军自己能否走出其将军范围，找到造成将军的所有棋子，判断是否有方式让其不再将军或者将其干掉
-        // console.log(allPositions);
-        //获取将军棋子的影响范围
-        const allEffectPositions = [];
-        for (let i = 0; i < allPositions.length; i++) {
-            const effectChessPosition = allPositions[i];
-            const effectChess = this.board[effectChessPosition[0]][effectChessPosition[1]];
-            const effectPositions =
-                (effectChess.text === text.redCar || effectChess.text === text.redGun || effectChess.text === text.blackCar || effectChess.text === text.blackGun)
-                    ? effectChess.killRule(effectChessPosition, this.board)
-                    : effectChess.rule(effectChessPosition, this.board);
-            allEffectPositions.push([...effectPositions]);
-        }
-        // 判断将军自己能否走出其将军范围
+        // 确定将军当前能移动的范围
         const play = this.board[position[0]][position[1]];
         const generalPosition = this.getGeneralPosition(play.type);
         const generalMoves = this.board[generalPosition[0]][generalPosition[1]].rule(generalPosition, this.board);
-        for (let i = 0; i < generalMoves.length; i++) {
-            for (let j = 0; j < allEffectPositions.length; j++) {
-                if (!this.includes(generalMoves[i], allEffectPositions[j])) {
-                    return false;
+        // 判断此范围是否有安全位置
+        for (let i = 0; i < this.board.length; i++) {
+            for (let j = 0; j < this.board[0].length; j++) {
+                const chess = this.board[i][j];
+                if (chess === this.empty || chess.type !== this.board[position[0]][position[1]].type) {
+                    continue;
+                }
+                const positions = (chess.text === text.redCar || chess.text === text.redGun || chess.text === text.blackCar || chess.text === text.blackGun)
+                    ? chess.killRule([i, j], this.board)
+                    : chess.rule([i, j], this.board);
+                for (let k = 0; k < generalMoves.length; k++) {
+                    if (this.includes(generalMoves[k], positions)) {
+                        generalMoves.splice(k, 1);
+                        k--;
+                    }
                 }
             }
         }
-        // 如果将军的棋子个数小于2 看看能否干掉这枚棋子
-
-        // 能否挡住将军的棋子
-        // console.log(generalMoves);
-        return false;
+        if (generalMoves.length > 0) {
+            return false;
+        }
+        // 判断是否能够干掉造成将军的棋子
+        if (allPositions.length === 1) {
+            const target = allPositions[0];
+            for (let i = 0; i < this.board.length; i++) {
+                for (let j = 0; j < this.board[0].length; j++) {
+                    const chess = this.board[i][j];
+                    if (chess === this.empty || chess.type === this.board[target[0]][target[1]].type) {
+                        continue;
+                    }
+                    const positions = chess.rule([i, j], this.board);
+                    if (this.includes(target, positions)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        // 找到干扰造成将军的所有棋子的位置（仅限于车马炮）
+        const disturbPositions = [];
+        for (let i = 0; i < allPositions.length; i++) {
+            const chessPosition = allPositions[i];
+            const chess = this.board[chessPosition[0]][chessPosition[1]];
+            if (chess.text === text.blackCar || chess.text === text.redCar) {
+                const positions = chess.getDisturb([chessPosition[0], chessPosition[1]], generalPosition);
+                disturbPositions.push([...positions]);
+            } else if (chess.text === text.blackGun || chess.text === text.redGun) {
+                const positions = chess.getDisturb([chessPosition[0], chessPosition[1]], generalPosition, this.board);
+                disturbPositions.push([...positions]);
+            } else if (chess.text === text.blackHorse || chess.text === text.redHorse) {
+                const positions = chess.getDisturb([chessPosition[0], chessPosition[1]], this.board);
+                disturbPositions.push([...positions]);
+            }
+        }
+        let targetPositions = [];
+        let doubleKill = false;
+        for (let i = 0; i < disturbPositions.length; i++) {
+            let flag = false;
+            const positions = disturbPositions[i];
+            if (positions.length === 0) {
+                return true;
+            }
+            for (let j = 0; j < positions.length; j++) {
+                const targetPosition = positions[j];
+                if (this.includes(targetPosition, targetPositions)) {
+                    doubleKill = true;
+                    flag = true;
+                    targetPositions = [];
+                    break;
+                } else {
+                    targetPositions.push([...targetPosition]);
+                }
+            }
+            if (flag) {
+                break;
+            }
+        }
+        if (doubleKill) {
+            const tmpPositions = [];
+            for (let i = 0; i < disturbPositions.length; i++) {
+                const positions = disturbPositions[i];
+                for (let j = 0; j < positions.length; j++) {
+                    const targetPosition = positions[j];
+                    if (this.includes(targetPosition, tmpPositions)) {
+                        targetPositions.push([...targetPosition]);
+                    } else {
+                        tmpPositions.push([...targetPosition]);
+                    }
+                }
+            }
+        }
+        // 判断是否能到达这些位置
+        for (let i = 0; i < this.board.length; i++) {
+            for (let j = 0; j < this.board[0].length; j++) {
+                const chess = this.board[i][j];
+                if (chess === this.empty || chess.type === this.board[position[0]][position[1]].type) {
+                    continue;
+                }
+                const positions = chess.rule([i, j], this.board);
+                for (let k = 0; k < targetPositions.length; k++) {
+                    if (this.includes(targetPositions[k], positions)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     specialHandler(position) {
         const result = this.warnGeneral(position);
         if (result[0].length !== 0 && this.absoluteKill(position, result[0])) {
             console.log('绝杀');
+            return true;
         } else if (result[0].length !== 0) {
             console.log('将军');
             this.warnGeneralSound.play();
+            return false;
         }
+        return false;
     }
 
     gameOver() {
@@ -469,13 +554,14 @@ export default class Board {
 
     // 逻辑再重新整理一下
     clickHandler = (e) => {
-        // console.log(e);
+        // 点击棋子
         if (e.target != this.boardDom) {
             const playerPosition = this.getChessPosition(e.target.id);
             if (this.invalidPlayer(playerPosition)) {
                 return;
             }
             const flag = this.canDown(playerPosition);
+            // 已经选中了一个棋子并即将落子
             if (this.readyPlay && flag) {
                 this.clearBoard();
                 // 需要判断是否是能落子的位置 如果不能落子则清空选择
@@ -490,12 +576,19 @@ export default class Board {
                     }, 500);
                     return;
                 }
+                if (this.specialHandler(playerPosition)) {
+                    setTimeout(() => {
+                        alert(`绝杀！${this.step % 2 === 1 ? '红' : '黑'}方胜`);
+                        this.destroy();
+                    }, 500);
+                    return;
+                }
                 this.step++;
                 this.historyRecord.push(this.deepClone(this.board));
                 this.historyIds.push(this.deepClone(this.idBoard));
                 this.isBackward = true;
-                this.specialHandler(playerPosition);
             } else {
+                // 更换选中的棋子
                 this.chessUpSound.play();
                 if (this.readyPlay && !flag) {
                     this.clearBoard();
@@ -513,7 +606,7 @@ export default class Board {
                 this.showCanDown(playerPosition);
             }
         } else {
-            // 也需要判断是否是能落子的位置 如果不能落子则清空选择
+            // 点击棋盘
             if (this.readyPlay) {
                 this.clearBoard();
                 const playerPosition = this.getEmptyPosition(e.offsetX, e.offsetY);
@@ -524,12 +617,18 @@ export default class Board {
                 }
                 this.endPosition = playerPosition;
                 this.changeChessPosition();
+                this.chessDownSound.play();
+                if (this.specialHandler(playerPosition)) {
+                    setTimeout(() => {
+                        alert(`绝杀！${this.step % 2 === 1 ? '红' : '黑'}方胜`);
+                        this.destroy();
+                    }, 500);
+                    return;
+                }
                 this.step++;
                 this.historyRecord.push(this.deepClone(this.board));
                 this.historyIds.push(this.deepClone(this.idBoard));
-                this.chessDownSound.play();
                 this.isBackward = true;
-                this.specialHandler(playerPosition);
             }
         }
     }
