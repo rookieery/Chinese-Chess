@@ -151,7 +151,6 @@ export default class Board {
     }
 
     // 如果将pop()改进为index可以实现forWard
-    // 悔棋还有bug
     backwardHandler = () => {
         if (!this.isBackward) {
             alert('提子无悔！');
@@ -186,7 +185,7 @@ export default class Board {
         chessDom.classList.add('chess');
         chessDom.classList.add(chess.type);
         chessDom.innerText = chess.text;
-        chessDom.setAttribute('id', this.id);
+        chessDom.setAttribute('id', this.idBoard[position[0]][position[1]]);
         chessDom.style.marginTop = `${1 + (11.49 * position[0])}%`;
         chessDom.style.marginLeft = `${0.5 + (11.56 * position[1])}%`;
         this.boardDom.appendChild(chessDom);
