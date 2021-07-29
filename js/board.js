@@ -365,7 +365,7 @@ export default class Board {
 
     warnGeneral(position) {
         const play = this.board[position[0]][position[1]];
-        // 不止一个点，可能有双将军，士相帅可以过滤掉
+        // 不止一个点，可能有双将军，士相可以过滤掉
         const positions = [];
         const allPositions = [];
         const generalPosition = this.getGeneralPosition(play.type);
@@ -376,14 +376,14 @@ export default class Board {
                     if (targetPlay.type !== role.red) {
                         continue;
                     }
-                    if (targetPlay.text === text.redOfficial || targetPlay.text === text.redPhase || targetPlay.text === text.redGeneral) {
+                    if (targetPlay.text === text.redOfficial || targetPlay.text === text.redPhase) {
                         continue;
                     }
                 } else {
                     if (targetPlay.type !== role.black) {
                         continue;
                     }
-                    if (targetPlay.text === text.blackOfficial || targetPlay.text === text.blackPhase || targetPlay.text === text.blackGeneral) {
+                    if (targetPlay.text === text.blackOfficial || targetPlay.text === text.blackPhase) {
                         continue;
                     }
                 }
@@ -406,6 +406,48 @@ export default class Board {
                 }
             }
         }
+    }
+
+    isWarnGeneral(playType) {
+        const generalPosition = this.getGeneralPosition(playType);
+        for (let i = 0; i < this.board.length; i++) {
+            for (let j = 0; j < this.board[0].length; j++) {
+                const targetPlay = this.board[i][j];
+                if (playType === role.red) {
+                    if (targetPlay.type !== role.red) {
+                        continue;
+                    }
+                    if (targetPlay.text === text.redOfficial || targetPlay.text === text.redPhase) {
+                        continue;
+                    }
+                } else {
+                    if (targetPlay.type !== role.black) {
+                        continue;
+                    }
+                    if (targetPlay.text === text.blackOfficial || targetPlay.text === text.blackPhase) {
+                        continue;
+                    }
+                }
+                const willPositions = targetPlay.rule([i, j], this.board);
+                if (this.includes(generalPosition, willPositions)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    //判断棋盘中的这个棋子是否能够落在目标位置（可能这个棋子为了保护将军并不能移动，比如充当炮或者车的挡板）
+    canGo(i, j, target) {
+        // 先将棋子移过去，判断对方棋子是否会对自己造成将军
+        const oldEle = this.board[target[0]][target[1]];
+        this.board[target[0]][target[1]] = this.board[i][j];
+        this.board[i][j] = this.empty;
+        const result = this.isWarnGeneral(oldEle.type);
+        // 还原
+        this.board[i][j] = this.board[target[0]][target[1]];
+        this.board[target[0]][target[1]] = oldEle;
+        return !result;
     }
 
     // 有点复杂TODO
@@ -445,7 +487,7 @@ export default class Board {
                         continue;
                     }
                     const positions = chess.rule([i, j], this.board);
-                    if (this.includes(target, positions)) {
+                    if (this.includes(target, positions) && this.canGo(i, j, target)) {
                         return false;
                     }
                 }
